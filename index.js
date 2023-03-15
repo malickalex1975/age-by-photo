@@ -75,7 +75,7 @@ const ctx = canvas.getContext("2d");
 document.addEventListener("DOMContentLoaded", () => init());
 
 function init() {
-  blockScreen();
+  //blockScreen();
   stopScan();
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
