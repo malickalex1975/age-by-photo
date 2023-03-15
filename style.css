@@ -1,0 +1,87 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ddd;
+}
+video {
+  position: fixed;
+  top: 2vh;
+  left: 2vw;
+  width: 96vw;
+  height: 96vh;
+  border: 2px dashed greenyellow;
+}
+.frame {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  border: 4px dashed white;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+@keyframes scan {
+  from {
+    top: calc(50% - 150px);
+    height: 3px;
+    background-color: green;
+  }
+  to {
+    top: calc(50% + 146px);
+    height: 1px;
+    background-color: greenyellow;
+  }
+}
+.scan-line {
+  animation: scan infinite;
+  animation-duration: 3s;
+  position: fixed;
+  top: calc(50% + 150px);
+  left: calc(50% - 150px);
+
+  width: 300px;
+  height: 3px;
+  background-color: green;
+}
+
+.button-camera-mode {
+  width: 100px;
+  height: 50px;
+  border: 2px solid transparent;
+  background-color: rgba(255, 255, 255, 0.1);
+  position: fixed;
+  bottom: 100px;
+  left: calc(50vw - 50px);
+  border-radius: 10px;
+}
+.button-camera-mode:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.button-camera-mode:active {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.warning {
+  width: 80vw;
+  height: 20vh;
+  position: fixed;
+  top: 40vh;
+  left: 10vw;
+  background-color: #eee;
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  visibility: hidden;
+  color: red;
+  font-size: 30px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
