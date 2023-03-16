@@ -1,6 +1,7 @@
 * {
   margin: 0;
   padding: 0;
+  user-select: none;
 }
 .background {
   position: fixed;
@@ -12,30 +13,30 @@
 }
 video {
   position: fixed;
-  top: 2vh;
-  left: 2vw;
-  width: 96vw;
-  height: 96vh;
-  border: 2px dashed greenyellow;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  
 }
 .frame {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 300px;
-  height: 300px;
+  width: 30vw;
+  height: 30vw;
   border: 4px dashed white;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(200, 255, 200, 0.3);
 }
 @keyframes scan {
   from {
-    top: calc(50% - 150px);
+    top: calc(50% - 15vw);
     height: 3px;
     background-color: green;
   }
   to {
-    top: calc(50% + 146px);
+    top: calc(50% + 14.6vw);
     height: 1px;
     background-color: greenyellow;
   }
@@ -44,10 +45,10 @@ video {
   animation: scan infinite;
   animation-duration: 3s;
   position: fixed;
-  top: calc(50% + 150px);
-  left: calc(50% - 150px);
+  top: calc(50% + 15vw);
+  left: calc(50% - 15vw);
   visibility: hidden;
-  width: 300px;
+  width: 30vw;
   height: 3px;
   background-color: green;
 }
@@ -58,12 +59,14 @@ video {
   border: 2px solid transparent;
   background-color: rgba(255, 255, 255, 0.1);
   position: fixed;
-  bottom: 100px;
+  bottom: 10px;
   left: calc(50vw - 100px);
   border-radius: 10px;
   color: red;
   font-size: 30px;
   cursor: pointer;
+  visibility: hidden;
+ 
 }
 .button-age:hover {
   background-color: rgba(255, 255, 255, 0.3);
@@ -87,5 +90,39 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: 1s;
+}
+.information {
+  width: 300px;
+  height: 100px;
+  position: fixed;
+  top: 10px;
+  left: calc(50% - 160px);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  color: red;
+  font-size: 30px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: 500ms;
+  visibility: hidden;
+}
+.canvas1{
+  position: fixed;
+  top:0px;
+  left:0px;
+  visibility: hidden;
+    
+}
+.canvas2{
+    width: 30vw;
+    height: 30vw;
+    position: fixed;
+    right:10px;
+    bottom:10px;
+    border: 3px solid red;
+    background-color: #eee;
 }
