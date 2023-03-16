@@ -1,5 +1,7 @@
 let screenWidth, screenHeight, constraints, canvas, ctx, canvas2, ctx2;
 let streamStarted = false;
+const MY_PERSONAL_ACCESS_TOKEN = "d5c7c4eebbba4c19a6e475d9d98d497e";
+const AGE_DETECTION_URL = `https://api.clarifai.com/v2/models/age-demographics-recognition/versions/fb9f10339ac14e23b8e960e74984401b/outputs`;
 
 class AgeRecognition {
   constructor() {}
@@ -51,12 +53,12 @@ class AgeRecognition {
     navigator.vibrate(150);
     setInformation("СКАНИРУЮ...");
     startScan();
-    //hideButtonAge();
+    hideButtonAge();
     let framePosition = getFramePosition();
     if (streamStarted) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      console.log(video.videoHeight, video.videoWidth)
+      console.log(video.videoHeight, video.videoWidth);
       ctx.drawImage(video, 0, 0);
       let img = ctx.getImageData(
         framePosition.x,
@@ -67,8 +69,130 @@ class AgeRecognition {
       canvas2.width = framePosition.width;
       canvas2.height = framePosition.height;
       ctx2.putImageData(img, 0, 0);
+      this.imageURL = canvas2.toDataURL().slice(22);
+      this.detectFace(this.imageURL);
     }
   };
+  detectFace =  (imageURL) => {
+    const raw = JSON.stringify({
+      user_app_id: {
+        user_id: "clarifai",
+        app_id: "main",
+      },
+      inputs: [
+        {
+          data: {
+            image: {
+              base64: imageURL,
+            },
+          },
+        },
+      ],
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Key " + "d5c7c4eebbba4c19a6e475d9d98d497e",
+      },
+      body: raw,
+    };
+
+    fetch(
+      `https://api.clarifai.com/v2/models/face-detection/versions/6dc7e46bc9124c5c8824be4822abe105/outputs`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        result = result?.outputs?.[0]?.data?.regions?.[0].value;
+        this.processFDResult(result,imageURL);
+      })
+      .catch((error) => {
+        console.log("error", error);
+        information.textContent = "ОШИБКА DETECT FACE";
+      });
+  };
+
+  processFDResult(result,imageURL) {
+    if (result === undefined || result < 0.6) {
+      information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
+      stopScan();
+      showButtonAge();
+    } else {
+      information.textContent = "ОБРАБОТКА...";
+      this.defineAge(imageURL)
+    }
+  }
+  defineAge=(imageURL)=>{
+    
+const raw = JSON.stringify({
+    "user_app_id": {
+      "user_id": "clarifai",
+      "app_id": "main"
+    },
+    "inputs": [
+        {
+            "data": {
+                "image": {
+                    base64: imageURL,
+                }
+            }
+        }
+    ]
+  });
+  
+  const requestOptions = {
+      method: 'POST',
+      headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Key ' + 'd5c7c4eebbba4c19a6e475d9d98d497e'
+      },
+      body: raw
+  };
+  
+  
+  fetch(`https://api.clarifai.com/v2/models/age-demographics-recognition/versions/fb9f10339ac14e23b8e960e74984401b/outputs`, requestOptions)
+      .then(response => response.json())
+      .then(result => {console.log(result);this.processAge(result)})
+      .catch(error => {console.log('error', error); information.textContent = "ОШИБКА AGE RECOGNITION";});
+    
+  }
+  processAge(result) {
+    const itemObject = result.outputs[0].data.concepts[0];
+    const agesArray = result.outputs[0].data.concepts;
+   let realAge=0
+    let ageObject = this.getAgeObject(agesArray);
+    realAge=Math.round(this.calculateRealAge(ageObject))
+    if(itemObject.value<0.4){realAge='x'}
+    information.textContent = `ВАШ ВОЗРАСТ ${realAge}`;
+    stopScan();
+    showButtonAge();
+  }
+  calculateRealAge(ageObject){
+    let age=0
+    for(let entry of Object.entries(ageObject)){
+      let key= entry[0];
+      let value= entry[1] 
+      let ageValue= key.split('-').map(i=>Number(i)).reduce((a,b)=>a+b,0)/2
+      age+=ageValue*value
+    }
+    return age
+  }
+  getAgeObject(arr) {
+    let outAgesObject = {};
+    if (arr.length === 0) {
+      console.log('no ages array');
+    }
+    for (let item of arr) {
+      let name = item.name;
+      if (name === 'more than 70') {
+        name = '70-79';
+      }
+      outAgesObject[name] = item.value;
+    }
+    return outAgesObject;
+  }
 }
 const ageRecognition = new AgeRecognition();
 const warning = document.querySelector(".warning");
@@ -143,8 +267,8 @@ function getFramePosition() {
   let y = frame.getBoundingClientRect().y;
   let width = frame.getBoundingClientRect().width;
   let height = frame.getBoundingClientRect().height;
-  x=x0+x;
-  y=y0+y;
+  x = x0 + x;
+  y = y0 + y;
   console.log({ x, y, width, height });
   return { x, y, width, height };
 }
