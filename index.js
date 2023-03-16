@@ -56,6 +56,7 @@ class AgeRecognition {
     if (streamStarted) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      console.log(video.videoHeight, video.videoWidth)
       ctx.drawImage(video, 0, 0);
       let img = ctx.getImageData(
         framePosition.x,

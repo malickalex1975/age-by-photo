@@ -15,8 +15,8 @@ video {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: fit-content;
+  height: fit-content;
   
 }
 .frame {
@@ -24,19 +24,19 @@ video {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 30vw;
-  height: 30vw;
+  width: 30vmax;
+  height: 30vmax;
   border: 4px dashed white;
   background-color: rgba(200, 255, 200, 0.3);
 }
 @keyframes scan {
   from {
-    top: calc(50% - 15vw);
+    top: calc(50% - 15vmax);
     height: 3px;
     background-color: green;
   }
   to {
-    top: calc(50% + 14.6vw);
+    top: calc(50% + 14.6vmax);
     height: 1px;
     background-color: greenyellow;
   }
@@ -45,10 +45,10 @@ video {
   animation: scan infinite;
   animation-duration: 3s;
   position: fixed;
-  top: calc(50% + 15vw);
-  left: calc(50% - 15vw);
+  top: calc(50% + 15vmax);
+  left: calc(50% - 15vmax);
   visibility: hidden;
-  width: 30vw;
+  width: 30vmax;
   height: 3px;
   background-color: green;
 }
@@ -114,12 +114,13 @@ video {
   position: fixed;
   top:0px;
   left:0px;
-  visibility: hidden;
+  
+  
     
 }
 .canvas2{
-    width: 30vw;
-    height: 30vw;
+    width: 30vmax;
+    height: 30vmax;
     position: fixed;
     right:10px;
     bottom:10px;
