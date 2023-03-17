@@ -1,8 +1,14 @@
-let screenWidth, screenHeight, constraints, canvas, ctx, canvas2, ctx2;
+let screenWidth,
+  screenHeight,
+  constraints,
+  canvas,
+  ctx,
+  canvas2,
+  ctx2,
+  sex,
+  realAge;
 let streamStarted = false;
-const MY_PERSONAL_ACCESS_TOKEN = "d5c7c4eebbba4c19a6e475d9d98d497e";
-const AGE_DETECTION_URL = `https://api.clarifai.com/v2/models/age-demographics-recognition/versions/fb9f10339ac14e23b8e960e74984401b/outputs`;
-
+let errors = 0;
 class AgeRecognition {
   constructor() {}
 
@@ -73,7 +79,7 @@ class AgeRecognition {
       this.detectFace(this.imageURL);
     }
   };
-  detectFace =  (imageURL) => {
+  detectFace = (imageURL) => {
     const raw = JSON.stringify({
       user_app_id: {
         user_id: "clarifai",
@@ -100,105 +106,208 @@ class AgeRecognition {
     };
 
     fetch(
-      `https://api.clarifai.com/v2/models/face-detection/versions/6dc7e46bc9124c5c8824be4822abe105/outputs`,
+      `https://api.clarifai.com/v2/models/face-detection/outputs`,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
         result = result?.outputs?.[0]?.data?.regions?.[0].value;
-        this.processFDResult(result,imageURL);
+        this.processFDResult(result, imageURL);
       })
       .catch((error) => {
         console.log("error", error);
-        information.textContent = "ОШИБКА DETECT FACE";
+        information.textContent = "ОШИБКА DETECT FACE"; this.reset();
       });
   };
 
-  processFDResult(result,imageURL) {
-    if (result === undefined || result < 0.6) {
+  processFDResult(result, imageURL) {
+    console.log(result)
+    if (result === undefined || result < 0.999) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
       stopScan();
       showButtonAge();
     } else {
       information.textContent = "ОБРАБОТКА...";
-      this.defineAge(imageURL)
+      this.defineAge(imageURL);
     }
   }
-  defineAge=(imageURL)=>{
-    
-const raw = JSON.stringify({
-    "user_app_id": {
-      "user_id": "clarifai",
-      "app_id": "main"
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    base64: imageURL,
-                }
-            }
-        }
-    ]
-  });
-  
-  const requestOptions = {
-      method: 'POST',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Key ' + 'd5c7c4eebbba4c19a6e475d9d98d497e'
+  defineSex = (imageURL) => {
+    const raw = JSON.stringify({
+      user_app_id: {
+        user_id: "clarifai",
+        app_id: "main",
       },
-      body: raw
+      inputs: [
+        {
+          data: {
+            image: {
+              base64: imageURL,
+            },
+          },
+        },
+      ],
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Key " + "d5c7c4eebbba4c19a6e475d9d98d497e",
+      },
+      body: raw,
+    };
+
+    fetch(
+      `https://api.clarifai.com/v2/models/gender-demographics-recognition/outputs`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        this.processSex(result);
+        this.viewResult();
+      })
+      .catch((error) => {
+        console.log("error", error);
+        information.textContent = "ОШИБКА SEX RECOGNITION";
+        this.reset();
+      });
   };
-  
-  
-  fetch(`https://api.clarifai.com/v2/models/age-demographics-recognition/versions/fb9f10339ac14e23b8e960e74984401b/outputs`, requestOptions)
-      .then(response => response.json())
-      .then(result => {console.log(result);this.processAge(result)})
-      .catch(error => {console.log('error', error); information.textContent = "ОШИБКА AGE RECOGNITION";});
-    
+
+  processSex(result) {
+    result = result.outputs?.[0]?.data?.concepts;
+    for (let item of result) {
+        console.log(item.name, item.value)
+      if (item.value > 0.9) {
+        sex = item.name;
+        break;
+        
+      }else{sex='ПОЛ НЕ ОПРЕДЕЛЕН';this.showBadQuality()}
+    }
   }
+
+  defineAge = (imageURL) => {
+    const raw = JSON.stringify({
+      user_app_id: {
+        user_id: "clarifai",
+        app_id: "main",
+      },
+      inputs: [
+        {
+          data: {
+            image: {
+              base64: imageURL,
+            },
+          },
+        },
+      ],
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Key " + "d5c7c4eebbba4c19a6e475d9d98d497e",
+      },
+      body: raw,
+    };
+
+    fetch(
+      `https://api.clarifai.com/v2/models/age-demographics-recognition/versions/fb9f10339ac14e23b8e960e74984401b/outputs`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        this.processAge(result);
+        this.defineSex(imageURL);
+      })
+      .catch((error) => {
+        console.log("error", error);
+        information.textContent = "ОШИБКА AGE RECOGNITION";
+        this.reset();
+      });
+  };
   processAge(result) {
     const itemObject = result.outputs[0].data.concepts[0];
     const agesArray = result.outputs[0].data.concepts;
-   let realAge=0
     let ageObject = this.getAgeObject(agesArray);
-    realAge=Math.round(this.calculateRealAge(ageObject))
-    if(itemObject.value<0.4){realAge='x'}
-    information.textContent = `ВАШ ВОЗРАСТ ${realAge}`;
-    stopScan();
-    showButtonAge();
-  }
-  calculateRealAge(ageObject){
-    let age=0
-    for(let entry of Object.entries(ageObject)){
-      let key= entry[0];
-      let value= entry[1] 
-      let ageValue= key.split('-').map(i=>Number(i)).reduce((a,b)=>a+b,0)/2
-      age+=ageValue*value
+    realAge = Math.round(this.calculateRealAge(ageObject));
+    if (itemObject.value < 0.35) {
+      realAge = "ВОЗРАСТ НЕ ОПРЕДЕЛЕН";
+      this.showBadQuality();
     }
-    return age
+  }
+  showBadQuality() {
+    errors++;
+    if (errors >= 2) {
+      this.showWarning("ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА", true);
+      setTimeout(()=>this.showWarning("ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА", false),3000)
+      errors = 0;
+    }
+  }
+  calculateRealAge(ageObject) {
+    let age = 0;
+    for (let entry of Object.entries(ageObject)) {
+      let key = entry[0];
+      let value = entry[1];
+      let ageValue =
+        key
+          .split("-")
+          .map((i) => Number(i))
+          .reduce((a, b) => a + b, 0) / 2;
+      age += ageValue * value;
+    }
+    return age;
   }
   getAgeObject(arr) {
     let outAgesObject = {};
     if (arr.length === 0) {
-      console.log('no ages array');
+      console.log("no ages array");
     }
     for (let item of arr) {
       let name = item.name;
-      if (name === 'more than 70') {
-        name = '70-79';
+      if (name === "more than 70") {
+        name = "70-79";
       }
       outAgesObject[name] = item.value;
     }
     return outAgesObject;
+  }
+  viewResult() {
+    information.innerHTML = `<p>${this.getRightSexName(sex,realAge)}</p><p> ${realAge} ${this.getRightWord(realAge)}</p>`;
+    this.reset()
+  }
+  getRightWord(age){
+    if(age==="ВОЗРАСТ НЕ ОПРЕДЕЛЕН"){return ''}
+    let god=[1,21,31,41,51,61,71,81];
+    let goda=[2,3,4,22,23,24,,32,33,34,42,43,44,52,53,54,62,63,64,72,73,74,82,83,84]
+    if (god.filter(i=>i===age).length>0){return 'год'};
+  
+    if (goda.filter(i=>i===age).length>0){return 'годa'};
+    return "лет"
+  }
+  getRightSexName(sex,realAge){
+    let rightWord='';
+    if(sex==="ПОЛ НЕ ОПРЕДЕЛЕН"){return sex}
+    if(sex==='Masculine'){
+        rightWord=realAge<15?'МАЛЬЧИК':realAge<21?'ЮНОША':'МУЖЧИНА'
+    }
+    if(sex==='Feminine'){
+        rightWord=realAge<13?'ДЕВОЧКА':realAge<21?'ДЕВУШКА':'ЖЕНЩИНА'
+    }
+    return rightWord
+  }
+  reset(){
+    stopScan();
+    showButtonAge();
   }
 }
 const ageRecognition = new AgeRecognition();
 const warning = document.querySelector(".warning");
 const information = document.querySelector(".information");
 const frame = document.querySelector(".frame");
-const scanLine = document.querySelector(".scan-line");
+const scanLine1 = document.querySelector(".scan-line1");
+const scanLine2 = document.querySelector(".scan-line2");
 const video = document.querySelector("video");
 const buttonAge = document.querySelector(".button-age");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
@@ -227,10 +336,12 @@ function blockScreen() {
 }
 
 function startScan() {
-  scanLine.style.visibility = "visible";
+  scanLine1.style.visibility = "visible";
+  scanLine2.style.visibility = "visible";
 }
 function stopScan() {
-  scanLine.style.visibility = "hidden";
+  scanLine1.style.visibility = "hidden";
+  scanLine2.style.visibility = "hidden";
 }
 function setInformation(message) {
   information.textContent = message;

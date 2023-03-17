@@ -29,7 +29,7 @@ video {
   border: 4px dashed white;
   background-color: rgba(200, 255, 200, 0.3);
 }
-@keyframes scan {
+@keyframes scan1 {
   from {
     top: calc(50% - 15vmax);
     height: 3px;
@@ -41,15 +41,38 @@ video {
     background-color: greenyellow;
   }
 }
-.scan-line {
-  animation: scan infinite;
-  animation-duration: 3s;
+@keyframes scan2 {
+  from {
+    left: calc(50% - 15vmax);
+    width: 3px;
+    background-color: green;
+  }
+  to {
+    left: calc(50% + 14.6vmax);
+    width: 1px;
+    background-color: greenyellow;
+  }
+}
+.scan-line1 {
+  animation: scan1 infinite;
+  animation-duration: 1s;
   position: fixed;
   top: calc(50% + 15vmax);
   left: calc(50% - 15vmax);
   visibility: hidden;
   width: 30vmax;
   height: 3px;
+  background-color: green;
+}
+.scan-line2 {
+  animation: scan2 infinite;
+  animation-duration: 1s;
+  position: fixed;
+  top: calc(50% - 15vmax);
+  left: calc(50% + 15vmax);
+  visibility: hidden;
+  height: 30vmax;
+  width: 3px;
   background-color: green;
 }
 
@@ -91,6 +114,7 @@ video {
   align-items: center;
   justify-content: center;
   transition: 1s;
+  text-align: center;
 }
 .information {
   width: 300px;
@@ -105,10 +129,12 @@ video {
   font-size: 30px;
   padding: 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: 500ms;
   visibility: hidden;
+  text-align: center;
 }
 .canvas1{
   position: fixed;
