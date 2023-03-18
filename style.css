@@ -15,8 +15,8 @@ video {
   position: fixed;
   top: 0;
   left: 0;
-  width: fit-content;
-  height: fit-content;
+  width: auto;
+ 
   
 }
 .frame {
@@ -140,6 +140,7 @@ video {
   position: fixed;
   top:0px;
   left:0px;
+  width: auto;
   
   
     

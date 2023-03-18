@@ -116,12 +116,13 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
-        information.textContent = "ОШИБКА DETECT FACE"; this.reset();
+        information.textContent = "ОШИБКА DETECT FACE";
+        this.reset();
       });
   };
 
   processFDResult(result, imageURL) {
-    console.log(result)
+    console.log(result);
     if (result === undefined || result < 0.999) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
       stopScan();
@@ -175,13 +176,17 @@ class AgeRecognition {
 
   processSex(result) {
     result = result.outputs?.[0]?.data?.concepts;
-    for (let item of result) {
-        console.log(item.name, item.value)
-      if (item.value > 0.9) {
-        sex = item.name;
-        break;
-        
-      }else{sex='ПОЛ НЕ ОПРЕДЕЛЕН';this.showBadQuality()}
+    if (result) {
+      for (let item of result) {
+        console.log(item.name, item.value);
+        if (item.value > 0.9) {
+          sex = item.name;
+          break;
+        } else {
+          sex = "ПОЛ НЕ ОПРЕДЕЛЕН";
+          this.showBadQuality();
+        }
+      }
     }
   }
 
@@ -228,76 +233,129 @@ class AgeRecognition {
       });
   };
   processAge(result) {
-    const itemObject = result.outputs[0].data.concepts[0];
-    const agesArray = result.outputs[0].data.concepts;
+    const itemObject = result?.outputs?.[0]?.data?.concepts?.[0];
+    const agesArray = result?.outputs?.[0]?.data?.concepts;
     let ageObject = this.getAgeObject(agesArray);
     realAge = Math.round(this.calculateRealAge(ageObject));
-    if (itemObject.value < 0.35) {
-      realAge = "ВОЗРАСТ НЕ ОПРЕДЕЛЕН";
-      this.showBadQuality();
+    if (itemObject) {
+      if (itemObject.value < 0.35) {
+        realAge = "ВОЗРАСТ НЕ ОПРЕДЕЛЕН";
+        this.showBadQuality();
+      }
     }
   }
   showBadQuality() {
     errors++;
     if (errors >= 2) {
-      this.showWarning("ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА", true);
-      setTimeout(()=>this.showWarning("ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА", false),3000)
+      this.showWarning(
+        "ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА",
+        true
+      );
+      setTimeout(
+        () =>
+          this.showWarning(
+            "ВОЗМОЖНО ПЛОХОЕ ОСВЕЩЕНИЕ ИЛИ НИЗКОЕ КАЧЕСТВО СНИМКА",
+            false
+          ),
+        3000
+      );
       errors = 0;
     }
   }
   calculateRealAge(ageObject) {
     let age = 0;
-    for (let entry of Object.entries(ageObject)) {
-      let key = entry[0];
-      let value = entry[1];
-      let ageValue =
-        key
-          .split("-")
-          .map((i) => Number(i))
-          .reduce((a, b) => a + b, 0) / 2;
-      age += ageValue * value;
+    if (ageObject) {
+      for (let entry of Object.entries(ageObject)) {
+        let key = entry[0];
+        let value = entry[1];
+        let ageValue =
+          key
+            .split("-")
+            .map((i) => Number(i))
+            .reduce((a, b) => a + b, 0) / 2;
+        age += ageValue * value;
+      }
+      return age;
     }
-    return age;
   }
   getAgeObject(arr) {
     let outAgesObject = {};
-    if (arr.length === 0) {
+    if (arr?.length === 0 || arr === undefined) {
       console.log("no ages array");
-    }
-    for (let item of arr) {
-      let name = item.name;
-      if (name === "more than 70") {
-        name = "70-79";
+    } else {
+      for (let item of arr) {
+        let name = item.name;
+        if (name === "more than 70") {
+          name = "70-79";
+        }
+        outAgesObject[name] = item.value;
       }
-      outAgesObject[name] = item.value;
+      return outAgesObject;
     }
-    return outAgesObject;
   }
   viewResult() {
-    information.innerHTML = `<p>${this.getRightSexName(sex,realAge)}</p><p> ${realAge} ${this.getRightWord(realAge)}</p>`;
-    this.reset()
+    information.innerHTML = `<p>${this.getRightSexName(
+      sex,
+      realAge
+    )}</p><p> ${realAge} ${this.getRightWord(realAge)}</p>`;
+    this.reset();
   }
-  getRightWord(age){
-    if(age==="ВОЗРАСТ НЕ ОПРЕДЕЛЕН"){return ''}
-    let god=[1,21,31,41,51,61,71,81];
-    let goda=[2,3,4,22,23,24,,32,33,34,42,43,44,52,53,54,62,63,64,72,73,74,82,83,84]
-    if (god.filter(i=>i===age).length>0){return 'год'};
-  
-    if (goda.filter(i=>i===age).length>0){return 'годa'};
-    return "лет"
-  }
-  getRightSexName(sex,realAge){
-    let rightWord='';
-    if(sex==="ПОЛ НЕ ОПРЕДЕЛЕН"){return sex}
-    if(sex==='Masculine'){
-        rightWord=realAge<15?'МАЛЬЧИК':realAge<21?'ЮНОША':'МУЖЧИНА'
+  getRightWord(age) {
+    if (age === "ВОЗРАСТ НЕ ОПРЕДЕЛЕН") {
+      return "";
     }
-    if(sex==='Feminine'){
-        rightWord=realAge<13?'ДЕВОЧКА':realAge<21?'ДЕВУШКА':'ЖЕНЩИНА'
+    let god = [1, 21, 31, 41, 51, 61, 71, 81];
+    let goda = [
+      2,
+      3,
+      4,
+      22,
+      23,
+      24,
+      ,
+      32,
+      33,
+      34,
+      42,
+      43,
+      44,
+      52,
+      53,
+      54,
+      62,
+      63,
+      64,
+      72,
+      73,
+      74,
+      82,
+      83,
+      84,
+    ];
+    if (god.filter((i) => i === age).length > 0) {
+      return "год";
     }
-    return rightWord
+
+    if (goda.filter((i) => i === age).length > 0) {
+      return "годa";
+    }
+    return "лет";
   }
-  reset(){
+  getRightSexName(sex, realAge) {
+    let rightWord = "";
+    if (sex === "ПОЛ НЕ ОПРЕДЕЛЕН") {
+      return sex;
+    }
+    if (sex === "Masculine") {
+      rightWord = realAge < 15 ? "МАЛЬЧИК" : realAge < 21 ? "ЮНОША" : "МУЖЧИНА";
+    }
+    if (sex === "Feminine") {
+      rightWord =
+        realAge < 13 ? "ДЕВОЧКА" : realAge < 21 ? "ДЕВУШКА" : "ЖЕНЩИНА";
+    }
+    return rightWord;
+  }
+  reset() {
     stopScan();
     showButtonAge();
   }
@@ -312,10 +370,11 @@ const video = document.querySelector("video");
 const buttonAge = document.querySelector(".button-age");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
-document.addEventListener("DOMContentLoaded", () => init());
+document.addEventListener("DOMContentLoaded", () => {alert("DOMLoaded");init()});
 
 function init() {
-  //blockScreen();
+    alert("hello init")
+  blockScreen();
   getScreenSizes();
   setConstraints();
   window.addEventListener("resize", () => {
@@ -332,7 +391,14 @@ function init() {
 }
 
 function blockScreen() {
-  screen.orientation.lock("portrait").then((inf)=>alert(inf),(e)=>alert(e)).catch((e)=>alert(e));
+  alert(screen.orientation.type);
+  screen.orientation
+    .lock("portrait")
+    .then(
+      (inf) => alert("resolve:", inf),
+      (e) => alert("reject:", e)
+    )
+    .catch((e) => alert("err:", e));
 }
 
 function startScan() {
