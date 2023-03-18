@@ -1,0 +1,155 @@
+* {
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ddd;
+}
+video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: fit-content;
+  height: fit-content;
+  
+}
+.frame {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30vmax;
+  height: 30vmax;
+  border: 4px dashed white;
+  background-color: rgba(200, 255, 200, 0.3);
+}
+@keyframes scan1 {
+  from {
+    top: calc(50% - 15vmax);
+    height: 3px;
+    background-color: green;
+  }
+  to {
+    top: calc(50% + 14.6vmax);
+    height: 1px;
+    background-color: greenyellow;
+  }
+}
+@keyframes scan2 {
+  from {
+    left: calc(50% - 15vmax);
+    width: 3px;
+    background-color: green;
+  }
+  to {
+    left: calc(50% + 14.6vmax);
+    width: 1px;
+    background-color: greenyellow;
+  }
+}
+.scan-line1 {
+  animation: scan1 infinite;
+  animation-duration: 1s;
+  position: fixed;
+  top: calc(50% + 15vmax);
+  left: calc(50% - 15vmax);
+  visibility: hidden;
+  width: 30vmax;
+  height: 3px;
+  background-color: green;
+}
+.scan-line2 {
+  animation: scan2 infinite;
+  animation-duration: 1s;
+  position: fixed;
+  top: calc(50% - 15vmax);
+  left: calc(50% + 15vmax);
+  visibility: hidden;
+  height: 30vmax;
+  width: 3px;
+  background-color: green;
+}
+
+.button-age {
+  width: 200px;
+  height: 70px;
+  border: 2px solid transparent;
+  background-color: rgba(255, 255, 255, 0.1);
+  position: fixed;
+  bottom: 10px;
+  left: calc(50vw - 100px);
+  border-radius: 10px;
+  color: red;
+  font-size: 30px;
+  cursor: pointer;
+  visibility: hidden;
+ 
+}
+.button-age:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.button-age:active {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.warning {
+  width: 80vw;
+  height: 20vh;
+  position: fixed;
+  top: 40vh;
+  left: 10vw;
+  background-color: #eee;
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  visibility: hidden;
+  color: red;
+  font-size: 30px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 1s;
+  text-align: center;
+}
+.information {
+  width: 300px;
+  height: 100px;
+  position: fixed;
+  top: 10px;
+  left: calc(50% - 160px);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  color: red;
+  font-size: 30px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 500ms;
+  visibility: hidden;
+  text-align: center;
+}
+.canvas1{
+  position: fixed;
+  top:0px;
+  left:0px;
+  
+  
+    
+}
+.canvas2{
+    width: 30vmax;
+    height: 30vmax;
+    position: fixed;
+    right:10px;
+    bottom:10px;
+    border: 3px solid red;
+    background-color: #eee;
+}
