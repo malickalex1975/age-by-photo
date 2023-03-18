@@ -370,9 +370,10 @@ const video = document.querySelector("video");
 const buttonAge = document.querySelector(".button-age");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
-document.addEventListener("DOMContentLoaded", () => init());
+document.addEventListener("DOMContentLoaded", () => {alert("DOMLoaded");init()});
 
 function init() {
+    alert("hello init")
   blockScreen();
   getScreenSizes();
   setConstraints();
