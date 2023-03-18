@@ -15,7 +15,7 @@ video {
   position: fixed;
   top: 0;
   left: 0;
-  width: auto;
+ 
  
   
 }
@@ -140,10 +140,7 @@ video {
   position: fixed;
   top:0px;
   left:0px;
-  width: auto;
-  
-  
-    
+ 
 }
 .canvas2{
     width: 30vmax;

@@ -14,7 +14,6 @@ class AgeRecognition {
 
   handleStream = (stream) => {
     video.srcObject = stream;
-    console.log(video.srcObject);
     streamStarted = true;
     video.play();
     setTimeout(() => showInformation(), 1000);
@@ -43,7 +42,7 @@ class AgeRecognition {
     warning.style.visibility = visibility;
     warning.textContent = message;
   }
-  async play() {
+   play() {
     if (streamStarted) {
       video.play();
       return;
@@ -55,7 +54,7 @@ class AgeRecognition {
     }
   }
 
-  doScreenshot = () => {
+  doScreenshot() {
     navigator.vibrate(150);
     setInformation("СКАНИРУЮ...");
     startScan();
@@ -367,33 +366,34 @@ const frame = document.querySelector(".frame");
 const scanLine1 = document.querySelector(".scan-line1");
 const scanLine2 = document.querySelector(".scan-line2");
 const video = document.querySelector("video");
+canvas = document.querySelector(".canvas1");
+ctx = canvas.getContext("2d", { willReadFrequently: true });
+canvas2 = document.querySelector(".canvas2");
+ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
-document.addEventListener("DOMContentLoaded", () => {alert("DOMLoaded");init()});
+document.addEventListener("DOMContentLoaded", () => {init()});
 
 function init() {
-    alert("hello init")
   blockScreen();
   getScreenSizes();
   setConstraints();
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
+
   });
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
-  canvas = document.querySelector(".canvas1");
-  ctx = canvas.getContext("2d", { willReadFrequently: true });
-  canvas2 = document.querySelector(".canvas2");
-  ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
+ 
 }
 
 function blockScreen() {
   alert(screen.orientation.type);
   screen.orientation
-    .lock("portrait")
+    .lock("portrait-primary")
     .then(
       (inf) => alert("resolve:", inf),
       (e) => alert("reject:", e)
