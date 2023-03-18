@@ -332,7 +332,7 @@ function init() {
 }
 
 function blockScreen() {
-  screen.orientation.lock("portrait").then(alert).catch(alert);
+  screen.orientation.lock("portrait").then((inf)=>alert(inf),(e)=>alert(e)).catch((e)=>alert(e));
 }
 
 function startScan() {
