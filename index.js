@@ -57,7 +57,7 @@ class AgeRecognition {
 
   doScreenshot = () => {
     navigator.vibrate(150);
-    setInformation("СКАНИРУЮ...");
+    setFullscreen();
     startScan();
     hideButtonAge();
     let framePosition = getFramePosition();
@@ -360,6 +360,8 @@ class AgeRecognition {
     showButtonAge();
   }
 }
+
+const container = document.querySelector(".container");
 const ageRecognition = new AgeRecognition();
 const warning = document.querySelector(".warning");
 const information = document.querySelector(".information");
@@ -379,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function init() {
+  setFullscreen();
   blockScreen();
   wakeLock();
   getScreenSizes();
@@ -456,4 +459,7 @@ function getFramePosition() {
   y = y0 + y;
   console.log({ x, y, width, height });
   return { x, y, width, height };
+}
+function setFullscreen() {
+  container.requestFullscreen().catch((err) => console.log(err));
 }
