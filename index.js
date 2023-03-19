@@ -9,6 +9,7 @@ let screenWidth,
   realAge;
 let streamStarted = false;
 let errors = 0;
+
 class AgeRecognition {
   constructor() {}
 
@@ -42,7 +43,7 @@ class AgeRecognition {
     warning.style.visibility = visibility;
     warning.textContent = message;
   }
-   play() {
+  play() {
     if (streamStarted) {
       video.play();
       return;
@@ -54,7 +55,7 @@ class AgeRecognition {
     }
   }
 
-  doScreenshot=()=> {
+  doScreenshot = () => {
     navigator.vibrate(150);
     setInformation("СКАНИРУЮ...");
     startScan();
@@ -78,11 +79,11 @@ class AgeRecognition {
       this.detectFace(imageURL);
     }
   };
-  detectFace=(imageURL)=>{
+  detectFace = (imageURL) => {
     const raw = JSON.stringify({
       user_app_id: {
-        user_id: "clarifai",
-        app_id: "main",
+        user_id: "openvino",
+        app_id: "face-detection",
       },
       inputs: [
         {
@@ -105,7 +106,7 @@ class AgeRecognition {
     };
 
     fetch(
-      `https://api.clarifai.com/v2/models/face-detection/outputs`,
+      `https://api.clarifai.com/v2/models/face-detection-0200/versions/174702155a6043c9932b045e8e00e6e2/outputs`,
       requestOptions
     )
       .then((response) => response.json())
@@ -373,37 +374,39 @@ ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
-document.addEventListener("DOMContentLoaded", () => {init()});
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+});
 
 function init() {
   blockScreen();
-  wakeLock()
+  wakeLock();
   getScreenSizes();
   setConstraints();
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
-
   });
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
- 
 }
 
 function blockScreen() {
   alert(screen.orientation.type);
   screen.orientation
     .lock("portrait-primary")
-    .then(
-      (inf) => alert("resolve:", inf)
-      
-    )
-    .catch((e) => alert("err:", e));
+    .then((inf) => alert("resolve:", inf))
+    .catch(alert);
 }
 
-function wakeLock(){
-    navigator.wakeLock.request('screen').then(()=>{alert('wakeLock')}).catch(alert)
+function wakeLock() {
+  navigator.wakeLock
+    .request("screen")
+    .then(() => {
+      alert("wakeLock");
+    })
+    .catch(alert);
 }
 
 function startScan() {
