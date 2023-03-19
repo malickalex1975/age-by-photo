@@ -54,7 +54,7 @@ class AgeRecognition {
     }
   }
 
-  doScreenshot() {
+  doScreenshot=()=> {
     navigator.vibrate(150);
     setInformation("СКАНИРУЮ...");
     startScan();
@@ -74,11 +74,11 @@ class AgeRecognition {
       canvas2.width = framePosition.width;
       canvas2.height = framePosition.height;
       ctx2.putImageData(img, 0, 0);
-      this.imageURL = canvas2.toDataURL().slice(22);
-      this.detectFace(this.imageURL);
+      let imageURL = canvas2.toDataURL().slice(22);
+      this.detectFace(imageURL);
     }
   };
-  detectFace = (imageURL) => {
+  detectFace=(imageURL)=>{
     const raw = JSON.stringify({
       user_app_id: {
         user_id: "clarifai",
@@ -377,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {init()});
 
 function init() {
   blockScreen();
+  wakeLock()
   getScreenSizes();
   setConstraints();
   window.addEventListener("resize", () => {
@@ -395,10 +396,14 @@ function blockScreen() {
   screen.orientation
     .lock("portrait-primary")
     .then(
-      (inf) => alert("resolve:", inf),
-      (e) => alert("reject:", e)
+      (inf) => alert("resolve:", inf)
+      
     )
     .catch((e) => alert("err:", e));
+}
+
+function wakeLock(){
+    navigator.wakeLock.request('screen').then(()=>{alert('wakeLock')}).catch(alert)
 }
 
 function startScan() {
