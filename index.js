@@ -29,7 +29,7 @@ class AgeRecognition {
     } catch {
       stopScan();
       hideButtonAge();
-      information.textContent = "ОШИБКА";
+      setInformation("ОШИБКА");
       video.srcObject = null;
       ageRecognition.showWarning(
         "Ошибка камеры или вы запретили её использовать!",
@@ -39,9 +39,10 @@ class AgeRecognition {
     }
   };
   showWarning(message = "no message", isVisible) {
+    setTimeout(()=>{
     let visibility = isVisible ? "visible" : "hidden";
     warning.style.visibility = visibility;
-    warning.textContent = message;
+    warning.textContent = message;},1000)
   }
   play() {
     if (streamStarted) {
@@ -59,6 +60,7 @@ class AgeRecognition {
     navigator.vibrate(50);
     startScan();
     hideButtonAge();
+    setInformation("СКАНИРУЮ...")
     let framePosition = getFramePosition();
     if (streamStarted) {
       canvas.width = video.videoWidth;
@@ -124,10 +126,9 @@ class AgeRecognition {
     console.log(result);
     if (result === undefined || result < 0.999) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
-      stopScan();
-      showButtonAge();
+      this.reset()
     } else {
-      information.textContent = "ОБРАБОТКА...";
+      setInformation("ОБРАБОТКА...");
       this.defineAge(imageURL);
     }
   }
@@ -168,7 +169,7 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
-        information.textContent = "ОШИБКА SEX RECOGNITION";
+        setInformation("ОШИБКА SEX RECOGNITION");
         this.reset();
       });
   };
@@ -227,7 +228,7 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
-        information.textContent = "ОШИБКА AGE RECOGNITION";
+        setInformation("ОШИБКА AGE RECOGNITION");
         this.reset();
       });
   };
@@ -357,6 +358,7 @@ class AgeRecognition {
   reset() {
     stopScan();
     showButtonAge();
+    setTimeout(()=>showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"),2000)
   }
 }
 
@@ -373,20 +375,20 @@ ctx = canvas.getContext("2d", { willReadFrequently: true });
 canvas2 = document.querySelector(".canvas2");
 ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
+const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
-buttonBegin.addEventListener('click',hideStartView)
+buttonBegin.addEventListener('click',()=>{init();setTimeout(()=>hideStartView(),1000)})
 const startView = document.querySelector(".start-view");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
 document.addEventListener("DOMContentLoaded", () => {
-  init();
+    showStartView();
 });
 
 function init() {
   wakeLock();
   getScreenSizes();
   setConstraints();
-  showStartView()
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
@@ -407,10 +409,7 @@ function blockScreen() {
 function wakeLock() {
   navigator.wakeLock
     .request("screen")
-    .then(() => {
-      alert("wakeLock");
-    })
-    .catch(alert);
+    .catch(console.log);
 }
 
 function startScan() {
@@ -439,11 +438,14 @@ function hideButtonAge() {
 function showStartView() {
 startView.style.top = "0px";
 buttonBegin.style.visibility = "visible";
+firstTitle.style.visibility = "visible";
+firstTitle.textContent=getFirstTitleContent()
 }
 function hideStartView() {
     startView.style.top = "-100vh";
     buttonBegin.style.visibility = "hidden";
-    setFullscreen().then(blockScreen);
+    firstTitle.style.visibility = "hidden";
+    setTimeout(()=>setFullscreen().then(blockScreen),500);
     navigator.vibrate(50)
 }
 function getScreenSizes() {
@@ -473,4 +475,15 @@ function getFramePosition() {
 }
 function setFullscreen() {
  return container.requestFullscreen().catch((err) => console.log(err))
+}
+function getFirstTitleContent(){
+    if (localStorage.getItem('isNotFirstTime')){
+        return 'ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ.ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.'
+    
+
+
+    }else{
+        localStorage.setItem('isNotFirstTime',true);
+        return'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ. ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ.ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.'
+    }
 }
