@@ -56,8 +56,7 @@ class AgeRecognition {
   }
 
   doScreenshot = () => {
-    navigator.vibrate(150);
-    setFullscreen().then(blockScreen);;
+    navigator.vibrate(50);
     startScan();
     hideButtonAge();
     let framePosition = getFramePosition();
@@ -374,6 +373,9 @@ ctx = canvas.getContext("2d", { willReadFrequently: true });
 canvas2 = document.querySelector(".canvas2");
 ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
+const buttonBegin = document.querySelector(".button-begin");
+buttonBegin.addEventListener('click',hideStartView)
+const startView = document.querySelector(".start-view");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
 document.addEventListener("DOMContentLoaded", () => {
@@ -384,6 +386,7 @@ function init() {
   wakeLock();
   getScreenSizes();
   setConstraints();
+  showStartView()
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
@@ -432,6 +435,16 @@ function showButtonAge() {
 }
 function hideButtonAge() {
   buttonAge.style.visibility = "hidden";
+}
+function showStartView() {
+startView.style.top = "0px";
+buttonBegin.style.visibility = "visible";
+}
+function hideStartView() {
+    startView.style.top = "-100vh";
+    buttonBegin.style.visibility = "hidden";
+    setFullscreen().then(blockScreen);
+    navigator.vibrate(50)
 }
 function getScreenSizes() {
   screenHeight = document.documentElement.clientHeight;
