@@ -1,5 +1,6 @@
 let screenWidth,
   screenHeight,
+  koeff,
   constraints,
   canvas,
   ctx,
@@ -16,7 +17,7 @@ class AgeRecognition {
   handleStream = (stream) => {
     video.srcObject = stream;
     streamStarted = true;
-    video.play();
+    video.play().then(setVideoStyle);
     setTimeout(() => showInformation(), 1000);
     setTimeout(() => showButtonAge(), 1500);
   };
@@ -67,14 +68,15 @@ class AgeRecognition {
       canvas.height = video.videoHeight;
       console.log(video.videoHeight, video.videoWidth);
       ctx.drawImage(video, 0, 0);
+      console.log('koeff:', koeff)
       let img = ctx.getImageData(
-        framePosition.x,
-        framePosition.y,
-        framePosition.width,
-        framePosition.height
+        framePosition.x*koeff,
+        framePosition.y*koeff,
+        framePosition.width*koeff,
+        framePosition.height*koeff
       );
-      canvas2.width = framePosition.width;
-      canvas2.height = framePosition.height;
+      canvas2.width = framePosition.width*koeff;
+      canvas2.height = framePosition.height*koeff;
       ctx2.putImageData(img, 0, 0);
       let imageURL = canvas2.toDataURL().slice(22);
       this.detectFace(imageURL);
@@ -343,6 +345,7 @@ class AgeRecognition {
   }
   getRightSexName(sex, realAge) {
     let rightWord = "";
+    if(sex===undefined){sex = "ПОЛ НЕ ОПРЕДЕЛЕН"}
     if (sex === "ПОЛ НЕ ОПРЕДЕЛЕН") {
       return sex;
     }
@@ -392,10 +395,12 @@ function init() {
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
+    setVideoStyle()
   });
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
+ 
 }
 
 function blockScreen() {
@@ -468,8 +473,9 @@ function getFramePosition() {
   let y = frame.getBoundingClientRect().y;
   let width = frame.getBoundingClientRect().width;
   let height = frame.getBoundingClientRect().height;
-  x = x0 + x;
-  y = y0 + y;
+  console.log('x0:',x0,'y0:',y0,'x:',x,'y:',y)
+  x = x - x0;
+  y = y - y0;
   console.log({ x, y, width, height });
   return { x, y, width, height };
 }
@@ -486,4 +492,13 @@ function getFirstTitleContent(){
         localStorage.setItem('isNotFirstTime',true);
         return'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ. ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.'
     }
+}
+function setVideoStyle(){
+     koeff= video.videoWidth/screenWidth;
+    let realHeight= video.videoHeight/koeff
+    let top=(screenHeight-realHeight)/2;
+    video.style.top=`${top}px`
+    canvas.style.top=`${top}px`
+    canvas.style.width=`${screenWidth}px`
+    
 }
