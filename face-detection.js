@@ -6,7 +6,7 @@ export class FaceDetection {
        
         return true;
       } else {
-        alert("FaceDetector is not supported");
+        console.log("FaceDetector is not supported");
         return false;
       }
     }

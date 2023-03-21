@@ -12,6 +12,7 @@ let screenWidth,
 let streamStarted = false;
 let errors = 0;
 const fd = new FaceDetection();
+const isFDSupported=fd.checkFD()
 
 class AgeRecognition {
   constructor() {}
@@ -73,6 +74,7 @@ class AgeRecognition {
     streamStarted = true;
     video.play().then(setVideoStyle);
     setTimeout(() => showInformation(), 1000);
+    if(!isFDSupported){setTimeout(()=>showButtonAge,1500)}
     
   };
 
@@ -421,7 +423,6 @@ class AgeRecognition {
   }
   reset() {
     stopScan();
-    showButtonAge();
     hideCanvas();
     setTimeout(() => showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 2000);
   }
@@ -465,7 +466,8 @@ function init() {
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
-  setInterval(ageRecognition.processFaceDetection, 500);
+  if(isFDSupported){ setInterval(ageRecognition.processFaceDetection, 500);}
+ 
 }
 
 function blockScreen() {
@@ -579,7 +581,9 @@ function setVideoStyle() {
 }
 function whiteFrame() {
   frame.style.border = "4px dashed white";
+  frame.style.backgroundColor="rgba(200, 200, 255, 0.3)"
 }
 function greenFrame() {
   frame.style.border = "4px dashed green";
+  frame.style.backgroundColor="rgba(200, 255, 200, 0.3)"
 }

@@ -42,7 +42,7 @@ width:100%
   width: 30vmax;
   height: 30vmax;
   border: 4px dashed white;
-  background-color: rgba(200, 255, 200, 0.3);
+  background-color: rgba(200, 200, 255, 0.3);
 }
 @keyframes scan1 {
   from {
