@@ -424,6 +424,7 @@ class AgeRecognition {
   reset() {
     stopScan();
     hideCanvas();
+    if(!isFDSupported){showButtonAge()}
     setTimeout(() => showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 2000);
   }
 }
