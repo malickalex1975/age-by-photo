@@ -9,10 +9,11 @@ let screenWidth,
   ctx2,
   sex,
   realAge;
+let isScreenShotProcessing = false;
 let streamStarted = false;
 let errors = 0;
 const fd = new FaceDetection();
-const isFDSupported=fd.checkFD()
+const isFDSupported = fd.checkFD();
 
 class AgeRecognition {
   constructor() {}
@@ -45,19 +46,21 @@ class AgeRecognition {
       let faceY = detectedFaces[0].boundingBox.y;
       let faceWidth = detectedFaces[0].boundingBox.width;
       let faceHeight = detectedFaces[0].boundingBox.height;
-    
+
       if (this.checkFaceInFrame(faceX, faceY, faceWidth, faceHeight)) {
         greenFrame();
-        showButtonAge()
+        if (!isScreenShotProcessing) {
+          showButtonAge();
+        }
       } else {
         whiteFrame();
-        hideButtonAge()
+        hideButtonAge();
       }
     }
   }
 
   processFaceDetection() {
-    if (video.videoWidth>0) {
+    if (video.videoWidth > 0) {
       if (fd.checkFD()) {
         fd.detect(video).then((detectedFaces) =>
           ageRecognition.checkFaces(detectedFaces)
@@ -65,7 +68,6 @@ class AgeRecognition {
       }
     } else {
       console.log("no image to detect");
-      
     }
   }
 
@@ -74,8 +76,9 @@ class AgeRecognition {
     streamStarted = true;
     video.play().then(setVideoStyle);
     setTimeout(() => showInformation(), 1000);
-    if(!isFDSupported){setTimeout(()=>showButtonAge,1500)}
-    
+    if (!isFDSupported) {
+      setTimeout(() => showButtonAge, 1500);
+    }
   };
 
   startStream = async (constraints) => {
@@ -115,6 +118,7 @@ class AgeRecognition {
   }
 
   doScreenshot = () => {
+    isScreenShotProcessing = true;
     navigator.vibrate(50);
     startScan();
     hideButtonAge();
@@ -422,9 +426,12 @@ class AgeRecognition {
     return rightWord;
   }
   reset() {
+    isScreenShotProcessing = false;
     stopScan();
     hideCanvas();
-    if(!isFDSupported){showButtonAge()}
+    if (!isFDSupported) {
+      showButtonAge();
+    }
     setTimeout(() => showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 2000);
   }
 }
@@ -467,8 +474,9 @@ function init() {
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
-  if(isFDSupported){ setInterval(ageRecognition.processFaceDetection, 500);}
- 
+  if (isFDSupported) {
+    setInterval(ageRecognition.processFaceDetection, 500);
+  }
 }
 
 function blockScreen() {
@@ -555,10 +563,8 @@ function getFramePosition() {
   let y = frame.getBoundingClientRect().y;
   let width = frame.getBoundingClientRect().width;
   let height = frame.getBoundingClientRect().height;
-  console.log("x0:", x0, "y0:", y0, "x:", x, "y:", y);
   x = x - x0;
   y = y - y0;
-  console.log({ x, y, width, height });
   return { x, y, width, height };
 }
 function setFullscreen() {
@@ -582,9 +588,9 @@ function setVideoStyle() {
 }
 function whiteFrame() {
   frame.style.border = "4px dashed white";
-  frame.style.backgroundColor="rgba(200, 200, 255, 0.3)"
+  frame.style.backgroundColor = "rgba(200, 200, 255, 0.3)";
 }
 function greenFrame() {
   frame.style.border = "4px dashed green";
-  frame.style.backgroundColor="rgba(200, 255, 200, 0.3)"
+  frame.style.backgroundColor = "rgba(200, 255, 200, 0.3)";
 }
