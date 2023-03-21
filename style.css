@@ -184,11 +184,14 @@ width:100%
  
 }
 .canvas2{
-    width: 10vmax;
-    height: 10vmax;
     position: fixed;
-    right:10px;
-    bottom:10px;
-    border: 3px solid red;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30vmax;
+    height: 30vmax;
+    border: 4px dashed white;
     background-color: #eee;
+    visibility: hidden;
+    transition: 100ms;
 }

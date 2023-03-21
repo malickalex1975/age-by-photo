@@ -1,3 +1,4 @@
+import { FaceDetection } from "./face-detection.js";
 let screenWidth,
   screenHeight,
   koeff,
@@ -10,16 +11,69 @@ let screenWidth,
   realAge;
 let streamStarted = false;
 let errors = 0;
+const fd = new FaceDetection();
 
 class AgeRecognition {
   constructor() {}
+
+  checkFaceInFrame(faceX, faceY, faceWidth, faceHeight) {
+    let faceX1 = faceX + faceWidth;
+    let faceY1 = faceY + faceHeight;
+    let framePosition = getFramePosition();
+    let frameX = framePosition.x;
+    let frameY = framePosition.y;
+    let frameWidth = framePosition.width;
+    let frameHeight = framePosition.height;
+    let frameX1 = frameX + frameWidth;
+    let frameY1 = frameY + frameHeight;
+    if (
+      faceX >= frameX &&
+      faceY >= frameY &&
+      faceX1 <= frameX1 &&
+      faceY1 <= frameY1
+    ) {
+      return true;
+    }
+    return false;
+  }
+  checkFaces(detectedFaces) {
+    if (detectedFaces === undefined || detectedFaces.length === 0) {
+      whiteFrame();
+    } else {
+      let faceX = detectedFaces[0].boundingBox.x;
+      let faceY = detectedFaces[0].boundingBox.y;
+      let faceWidth = detectedFaces[0].boundingBox.width;
+      let faceHeight = detectedFaces[0].boundingBox.height;
+    
+      if (this.checkFaceInFrame(faceX, faceY, faceWidth, faceHeight)) {
+        greenFrame();
+        showButtonAge()
+      } else {
+        whiteFrame();
+        hideButtonAge()
+      }
+    }
+  }
+
+  processFaceDetection() {
+    if (video.videoWidth>0) {
+      if (fd.checkFD()) {
+        fd.detect(video).then((detectedFaces) =>
+          ageRecognition.checkFaces(detectedFaces)
+        );
+      }
+    } else {
+      console.log("no image to detect");
+      
+    }
+  }
 
   handleStream = (stream) => {
     video.srcObject = stream;
     streamStarted = true;
     video.play().then(setVideoStyle);
     setTimeout(() => showInformation(), 1000);
-    setTimeout(() => showButtonAge(), 1500);
+    
   };
 
   startStream = async (constraints) => {
@@ -40,10 +94,11 @@ class AgeRecognition {
     }
   };
   showWarning(message = "no message", isVisible) {
-    setTimeout(()=>{
-    let visibility = isVisible ? "visible" : "hidden";
-    warning.style.visibility = visibility;
-    warning.textContent = message;},1000)
+    setTimeout(() => {
+      let visibility = isVisible ? "visible" : "hidden";
+      warning.style.visibility = visibility;
+      warning.textContent = message;
+    }, 1000);
   }
   play() {
     if (streamStarted) {
@@ -61,23 +116,24 @@ class AgeRecognition {
     navigator.vibrate(50);
     startScan();
     hideButtonAge();
-    setInformation("СКАНИРУЮ...")
+    setInformation("СКАНИРУЮ...");
     let framePosition = getFramePosition();
     if (streamStarted) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       console.log(video.videoHeight, video.videoWidth);
       ctx.drawImage(video, 0, 0);
-      console.log('koeff:', koeff)
+      console.log("koeff:", koeff);
       let img = ctx.getImageData(
-        framePosition.x*koeff,
-        framePosition.y*koeff,
-        framePosition.width*koeff,
-        framePosition.height*koeff
+        framePosition.x * koeff,
+        framePosition.y * koeff,
+        framePosition.width * koeff,
+        framePosition.height * koeff
       );
-      canvas2.width = framePosition.width*koeff;
-      canvas2.height = framePosition.height*koeff;
+      canvas2.width = framePosition.width * koeff;
+      canvas2.height = framePosition.height * koeff;
       ctx2.putImageData(img, 0, 0);
+      showCanvas();
       let imageURL = canvas2.toDataURL().slice(22);
       this.detectFace(imageURL);
     }
@@ -120,6 +176,7 @@ class AgeRecognition {
       .catch((error) => {
         console.log("error", error);
         information.textContent = "ОШИБКА DETECT FACE";
+        realAge = "-";
         this.reset();
       });
   };
@@ -128,7 +185,8 @@ class AgeRecognition {
     console.log(result);
     if (result === undefined || result < 0.999) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
-      this.reset()
+      realAge = "-";
+      this.reset();
     } else {
       setInformation("ОБРАБОТКА...");
       this.defineAge(imageURL);
@@ -231,6 +289,7 @@ class AgeRecognition {
       .catch((error) => {
         console.log("error", error);
         setInformation("ОШИБКА AGE RECOGNITION");
+        realAge = "-";
         this.reset();
       });
   };
@@ -345,7 +404,9 @@ class AgeRecognition {
   }
   getRightSexName(sex, realAge) {
     let rightWord = "";
-    if(sex===undefined){sex = "ПОЛ НЕ ОПРЕДЕЛЕН"}
+    if (sex === undefined) {
+      sex = "ПОЛ НЕ ОПРЕДЕЛЕН";
+    }
     if (sex === "ПОЛ НЕ ОПРЕДЕЛЕН") {
       return sex;
     }
@@ -361,7 +422,8 @@ class AgeRecognition {
   reset() {
     stopScan();
     showButtonAge();
-    setTimeout(()=>showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"),2000)
+    hideCanvas();
+    setTimeout(() => showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 2000);
   }
 }
 
@@ -380,12 +442,15 @@ ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
-buttonBegin.addEventListener('click',()=>{init();setTimeout(()=>hideStartView(),1000)})
+buttonBegin.addEventListener("click", () => {
+  init();
+  setTimeout(() => hideStartView(), 1000);
+});
 const startView = document.querySelector(".start-view");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
 buttonAge.addEventListener("click", ageRecognition.doScreenshot);
 document.addEventListener("DOMContentLoaded", () => {
-    showStartView();
+  showStartView();
 });
 
 function init() {
@@ -395,12 +460,12 @@ function init() {
   window.addEventListener("resize", () => {
     getScreenSizes();
     setConstraints();
-    setVideoStyle()
+    setVideoStyle();
   });
   setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
   ageRecognition.showWarning("Разрешите использовать камеру в браузере!", true);
   ageRecognition.play();
- 
+  setInterval(ageRecognition.processFaceDetection, 500);
 }
 
 function blockScreen() {
@@ -412,9 +477,7 @@ function blockScreen() {
 }
 
 function wakeLock() {
-  navigator.wakeLock
-    .request("screen")
-    .catch(console.log);
+  navigator.wakeLock.request("screen").catch(console.log);
 }
 
 function startScan() {
@@ -434,6 +497,22 @@ function showInformation() {
 function hideInformation() {
   information.style.visibility = "hidden";
 }
+function showCanvas() {
+  canvas2.style.visibility = "visible";
+  canvas2.style.top = "50%";
+  canvas2.style.left = "50%";
+  canvas2.style.width = "30vmax";
+  canvas2.style.height = "30vmax";
+  ctx2.fillText("", 10, 50);
+}
+function hideCanvas() {
+  canvas2.style.top = "80%";
+  canvas2.style.left = "80%";
+  canvas2.style.width = "8vmax";
+  canvas2.style.height = "8vmax";
+  ctx2.font = "100px serif";
+  ctx2.fillText(realAge.toString(), 100, 120);
+}
 function showButtonAge() {
   buttonAge.style.visibility = "visible";
 }
@@ -441,17 +520,17 @@ function hideButtonAge() {
   buttonAge.style.visibility = "hidden";
 }
 function showStartView() {
-startView.style.top = "0px";
-buttonBegin.style.visibility = "visible";
-firstTitle.style.visibility = "visible";
-firstTitle.textContent=getFirstTitleContent()
+  startView.style.top = "0px";
+  buttonBegin.style.visibility = "visible";
+  firstTitle.style.visibility = "visible";
+  firstTitle.textContent = getFirstTitleContent();
 }
 function hideStartView() {
-    startView.style.top = "-100vh";
-    buttonBegin.style.visibility = "hidden";
-    firstTitle.style.visibility = "hidden";
-    setTimeout(()=>setFullscreen().then(blockScreen),500);
-    navigator.vibrate(50)
+  startView.style.top = "-100vh";
+  buttonBegin.style.visibility = "hidden";
+  firstTitle.style.visibility = "hidden";
+  setTimeout(() => setFullscreen().then(blockScreen), 500);
+  navigator.vibrate(50);
 }
 function getScreenSizes() {
   screenHeight = document.documentElement.clientHeight;
@@ -473,32 +552,34 @@ function getFramePosition() {
   let y = frame.getBoundingClientRect().y;
   let width = frame.getBoundingClientRect().width;
   let height = frame.getBoundingClientRect().height;
-  console.log('x0:',x0,'y0:',y0,'x:',x,'y:',y)
+  console.log("x0:", x0, "y0:", y0, "x:", x, "y:", y);
   x = x - x0;
   y = y - y0;
   console.log({ x, y, width, height });
   return { x, y, width, height };
 }
 function setFullscreen() {
- return container.requestFullscreen().catch((err) => console.log(err))
+  return container.requestFullscreen().catch((err) => console.log(err));
 }
-function getFirstTitleContent(){
-    if (localStorage.getItem('isNotFirstTime')){
-        return 'ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.'
-    
-
-
-    }else{
-        localStorage.setItem('isNotFirstTime',true);
-        return'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ. ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.'
-    }
+function getFirstTitleContent() {
+  if (localStorage.getItem("isNotFirstTime")) {
+    return "ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.";
+  } else {
+    localStorage.setItem("isNotFirstTime", true);
+    return 'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ. ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.';
+  }
 }
-function setVideoStyle(){
-     koeff= video.videoWidth/screenWidth;
-    let realHeight= video.videoHeight/koeff
-    let top=(screenHeight-realHeight)/2;
-    video.style.top=`${top}px`
-    canvas.style.top=`${top}px`
-    canvas.style.width=`${screenWidth}px`
-    
+function setVideoStyle() {
+  koeff = video.videoWidth / screenWidth;
+  let realHeight = video.videoHeight / koeff;
+  let top = (screenHeight - realHeight) / 2;
+  video.style.top = `${top}px`;
+  canvas.style.top = `${top}px`;
+  canvas.style.width = `${screenWidth}px`;
+}
+function whiteFrame() {
+  frame.style.border = "4px dashed white";
+}
+function greenFrame() {
+  frame.style.border = "4px dashed green";
 }
