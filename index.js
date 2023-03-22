@@ -77,7 +77,7 @@ class AgeRecognition {
     video.play().then(setVideoStyle);
     setTimeout(() => showInformation(), 1000);
     if (!isFDSupported) {
-      setTimeout(() => showButtonAge, 1500);
+      setTimeout(() => showButtonAge(), 1500);
     }
   };
 
@@ -136,8 +136,11 @@ class AgeRecognition {
         framePosition.width * koeff,
         framePosition.height * koeff
       );
+      canvas2=document.createElement('canvas');
+      canvas2.className='canvas2'
       canvas2.width = framePosition.width * koeff;
       canvas2.height = framePosition.height * koeff;
+      ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
       ctx2.putImageData(img, 0, 0);
       showCanvas();
       let imageURL = canvas2.toDataURL().slice(22);
@@ -245,7 +248,7 @@ class AgeRecognition {
     if (result) {
       for (let item of result) {
         console.log(item.name, item.value);
-        if (item.value > 0.9) {
+        if (item.value > 0.8) {
           sex = item.name;
           break;
         } else {
@@ -432,11 +435,12 @@ class AgeRecognition {
     if (!isFDSupported) {
       showButtonAge();
     }
-    setTimeout(() => showInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 2000);
+    setTimeout(() => setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 3000);
   }
 }
 
 const container = document.querySelector(".container");
+const canvasContainer = document.querySelector(".canvas-container");
 const ageRecognition = new AgeRecognition();
 const warning = document.querySelector(".warning");
 const information = document.querySelector(".information");
@@ -447,7 +451,7 @@ const video = document.querySelector("video");
 canvas = document.querySelector(".canvas1");
 ctx = canvas.getContext("2d", { willReadFrequently: true });
 canvas2 = document.querySelector(".canvas2");
-ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
+
 const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
@@ -510,11 +514,14 @@ function hideInformation() {
 }
 function showCanvas() {
   canvas2.style.visibility = "visible";
+  canvas2.style.zIndex='10'
   canvas2.style.top = "50%";
   canvas2.style.left = "50%";
   canvas2.style.width = "30vmax";
   canvas2.style.height = "30vmax";
   ctx2.fillText("", 10, 50);
+  container.appendChild(canvas2)
+
 }
 function hideCanvas() {
   canvas2.style.top = "80%";
@@ -522,7 +529,11 @@ function hideCanvas() {
   canvas2.style.width = "8vmax";
   canvas2.style.height = "8vmax";
   ctx2.font = "100px serif";
+  ctx2.fillStyle='red'
   ctx2.fillText(realAge.toString(), 100, 120);
+  canvas2.remove();
+  canvasContainer.appendChild(canvas2)
+
 }
 function showButtonAge() {
   buttonAge.style.visibility = "visible";
