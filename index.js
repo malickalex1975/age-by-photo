@@ -1,4 +1,5 @@
 import { FaceDetection } from "./face-detection.js";
+import { string1, string2 } from "./strings.js";
 let screenWidth,
   screenHeight,
   koeff,
@@ -594,10 +595,10 @@ function setFullscreen() {
 }
 function getFirstTitleContent() {
   if (localStorage.getItem("isNotFirstTime")) {
-    return "ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.";
+    return string1;
   } else {
     localStorage.setItem("isNotFirstTime", true);
-    return 'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ.';
+    return string2;
   }
 }
 function setVideoStyle() {
