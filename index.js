@@ -10,6 +10,7 @@ let screenWidth,
   sex,
   realAge;
 let isScreenShotProcessing = false;
+let isNotRecognize = false;
 let streamStarted = false;
 let errors = 0;
 const fd = new FaceDetection();
@@ -118,6 +119,7 @@ class AgeRecognition {
   }
 
   doScreenshot = () => {
+    isNotRecognize = false;
     isScreenShotProcessing = true;
     navigator.vibrate(50);
     startScan();
@@ -129,15 +131,14 @@ class AgeRecognition {
       canvas.height = video.videoHeight;
       console.log(video.videoHeight, video.videoWidth);
       ctx.drawImage(video, 0, 0);
-      console.log("koeff:", koeff);
       let img = ctx.getImageData(
         framePosition.x * koeff,
         framePosition.y * koeff,
         framePosition.width * koeff,
         framePosition.height * koeff
       );
-      canvas2=document.createElement('canvas');
-      canvas2.className='canvas2'
+      canvas2 = document.createElement("canvas");
+      canvas2.className = "canvas2";
       canvas2.width = framePosition.width * koeff;
       canvas2.height = framePosition.height * koeff;
       ctx2 = canvas2.getContext("2d", { willReadFrequently: true });
@@ -184,6 +185,7 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
+        isNotRecognize = true;
         information.textContent = "ОШИБКА DETECT FACE";
         realAge = "-";
         this.reset();
@@ -194,6 +196,7 @@ class AgeRecognition {
     console.log(result);
     if (result === undefined || result < 0.98) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
+      isNotRecognize = true;
       realAge = "-";
       this.reset();
     } else {
@@ -238,6 +241,7 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
+        isNotRecognize = true;
         setInformation("ОШИБКА SEX RECOGNITION");
         this.reset();
       });
@@ -253,6 +257,7 @@ class AgeRecognition {
           break;
         } else {
           sex = "ПОЛ НЕ ОПРЕДЕЛЕН";
+          isNotRecognize = true;
           this.showBadQuality();
         }
       }
@@ -297,6 +302,7 @@ class AgeRecognition {
       })
       .catch((error) => {
         console.log("error", error);
+        isNotRecognize = true;
         setInformation("ОШИБКА AGE RECOGNITION");
         realAge = "-";
         this.reset();
@@ -310,6 +316,7 @@ class AgeRecognition {
     if (itemObject) {
       if (itemObject.value < 0.35) {
         realAge = "ВОЗРАСТ НЕ ОПРЕДЕЛЕН";
+        isNotRecognize = true;
         this.showBadQuality();
       }
     }
@@ -435,7 +442,7 @@ class AgeRecognition {
     if (!isFDSupported) {
       showButtonAge();
     }
-    setTimeout(() => setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 3000);
+    setTimeout(() => setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ"), 4000);
   }
 }
 
@@ -450,12 +457,11 @@ const scanLine2 = document.querySelector(".scan-line2");
 const video = document.querySelector("video");
 canvas = document.querySelector(".canvas1");
 ctx = canvas.getContext("2d", { willReadFrequently: true });
-canvas2 = document.querySelector(".canvas2");
-
 const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
 buttonBegin.addEventListener("click", () => {
+  navigator.vibrate(50);
   init();
   setTimeout(() => hideStartView(), 1000);
 });
@@ -514,27 +520,34 @@ function hideInformation() {
 }
 function showCanvas() {
   canvas2.style.visibility = "visible";
-  canvas2.style.zIndex='10'
+  canvas2.style.position = "fixed";
+  canvas2.style.transform = "translate(-50%,-50%)";
+  canvas2.style.zIndex = "10";
   canvas2.style.top = "50%";
   canvas2.style.left = "50%";
   canvas2.style.width = "35vmax";
   canvas2.style.height = "35vmax";
-  canvas2.style.transition='100ms'
+  canvas2.style.transition = "100ms";
   ctx2.fillText("", 10, 50);
-  container.appendChild(canvas2)
-
+  container.appendChild(canvas2);
 }
 function hideCanvas() {
+  canvas2.style.position = "static";
+  canvas2.style.transform = "translate(0%,0%)";
   canvas2.style.top = "80%";
   canvas2.style.left = "80%";
   canvas2.style.width = "8vmax";
   canvas2.style.height = "8vmax";
   ctx2.font = "150px serif";
-  ctx2.fillStyle='red'
+  ctx2.fillStyle = "red";
   ctx2.fillText(realAge.toString(), 100, 170);
   canvas2.remove();
-  canvasContainer.appendChild(canvas2)
-
+  if (document.querySelectorAll(".canvas2").length >= 5) {
+    document.querySelector(".canvas2").remove();
+  }
+  if (!isNotRecognize) {
+    canvasContainer.appendChild(canvas2);
+  }
 }
 function showButtonAge() {
   buttonAge.style.visibility = "visible";
@@ -550,10 +563,7 @@ function showStartView() {
 }
 function hideStartView() {
   startView.style.top = "-100vh";
-  buttonBegin.style.visibility = "hidden";
-  firstTitle.style.visibility = "hidden";
   setTimeout(() => setFullscreen().then(blockScreen), 500);
-  navigator.vibrate(50);
 }
 function getScreenSizes() {
   screenHeight = document.documentElement.clientHeight;
@@ -562,8 +572,8 @@ function getScreenSizes() {
 function setConstraints() {
   constraints = {
     video: {
-      width: { min: 1024, ideal: screenWidth, max: 1920 },
-      height: { min: 720, ideal: screenHeight, max: 1080 },
+      width: { min: 1280, ideal: screenWidth * 2, max: 1920 },
+      height: { min: 720, ideal: screenHeight * 2, max: 1080 },
       facingMode: { exact: "user" },
     },
   };
@@ -599,10 +609,8 @@ function setVideoStyle() {
   canvas.style.width = `${screenWidth}px`;
 }
 function whiteFrame() {
-  frame.style.border = "4px dashed white";
   frame.style.backgroundColor = "rgba(200, 200, 255, 0.3)";
 }
 function greenFrame() {
-  frame.style.border = "4px dashed green";
   frame.style.backgroundColor = "rgba(200, 255, 200, 0.3)";
 }
