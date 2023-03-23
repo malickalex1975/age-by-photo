@@ -453,6 +453,7 @@ const ageRecognition = new AgeRecognition();
 const warning = document.querySelector(".warning");
 const information = document.querySelector(".information");
 const frame = document.querySelector(".frame");
+frame.addEventListener('click', ageRecognition.doScreenshot)
 const scanLine1 = document.querySelector(".scan-line1");
 const scanLine2 = document.querySelector(".scan-line2");
 const video = document.querySelector("video");
@@ -557,9 +558,7 @@ function hideButtonAge() {
   buttonAge.style.visibility = "hidden";
 }
 function showStartView() {
-  startView.style.top = "0px";
-  buttonBegin.style.visibility = "visible";
-  firstTitle.style.visibility = "visible";
+  
   firstTitle.textContent = getFirstTitleContent();
 }
 function hideStartView() {
@@ -573,8 +572,8 @@ function getScreenSizes() {
 function setConstraints() {
   constraints = {
     video: {
-      width: { min: 1280, ideal: screenWidth * 2, max: 1920 },
-      height: { min: 720, ideal: screenHeight * 2, max: 1080 },
+      width: { min: 1280, max: 1920 },
+      height: { min: 720,  max: 1080 },
       facingMode: { exact: "user" },
     },
   };
