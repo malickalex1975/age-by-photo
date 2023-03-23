@@ -6,14 +6,16 @@
 @keyframes start-animation {
   0% {
     top:-100vh;
-    
+   
   }
   50% {
     top:10vh;
 
+
   }
   100% {
     top:0vh;
+
 
   }
 }
@@ -29,7 +31,6 @@
   height: 100vh;
   z-index: 10;
   background-color: #dee;
-
   transition: 1s;
   display: flex;
   flex-direction: column;
@@ -130,6 +131,7 @@ video {
   color: red;
   font-size: 30px;
   cursor: pointer;
+  z-index: 11;
 }
 
 .button-age:hover,
