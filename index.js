@@ -192,7 +192,7 @@ class AgeRecognition {
 
   processFDResult(result, imageURL) {
     console.log(result);
-    if (result === undefined || result < 0.999) {
+    if (result === undefined || result < 0.98) {
       information.textContent = "ЛИЦО НЕ ОБНАРУЖЕНО";
       realAge = "-";
       this.reset();
@@ -517,8 +517,9 @@ function showCanvas() {
   canvas2.style.zIndex='10'
   canvas2.style.top = "50%";
   canvas2.style.left = "50%";
-  canvas2.style.width = "30vmax";
-  canvas2.style.height = "30vmax";
+  canvas2.style.width = "35vmax";
+  canvas2.style.height = "35vmax";
+  canvas2.style.transition='100ms'
   ctx2.fillText("", 10, 50);
   container.appendChild(canvas2)
 
@@ -528,9 +529,9 @@ function hideCanvas() {
   canvas2.style.left = "80%";
   canvas2.style.width = "8vmax";
   canvas2.style.height = "8vmax";
-  ctx2.font = "100px serif";
+  ctx2.font = "150px serif";
   ctx2.fillStyle='red'
-  ctx2.fillText(realAge.toString(), 100, 120);
+  ctx2.fillText(realAge.toString(), 100, 170);
   canvas2.remove();
   canvasContainer.appendChild(canvas2)
 
@@ -586,7 +587,7 @@ function getFirstTitleContent() {
     return "ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.";
   } else {
     localStorage.setItem("isNotFirstTime", true);
-    return 'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ. ДАННОЕ ПРИЛОЖЕНИЕ ПОЗВОЛЯЕТ ОЦЕНИТЬ ВАШ ВОЗРАСТ ПО ВАШЕЙ ВНЕШНОСТИ. ТОЧНОСТЬ РЕЗУЛЬТАТА ЗАВИСИТ ОТ КАЧЕСТВА ИЗОБРАЖЕНИЯ.';
+    return 'ДЛЯ РАБОТЫ ПРИЛОЖЕНИЯ РАЗРЕШИТЕ БРАУЗЕРУ ИСПОЛЬЗОВАТЬ КАМЕРУ. ПОСЛЕ НАЖАТИЯ КНОПКИ "НАЧАТЬ" ВАМ БУДЕТ ПРЕДЛОЖЕНО ЭТО СДЕЛАТЬ.';
   }
 }
 function setVideoStyle() {

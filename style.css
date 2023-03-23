@@ -36,31 +36,31 @@ video {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 30vmax;
-  height: 30vmax;
+  width: 35vmax;
+  height: 35vmax;
   border: 4px dashed white;
   background-color: rgba(200, 200, 255, 0.3);
 }
 @keyframes scan1 {
   from {
-    top: calc(50% - 15vmax);
+    top: calc(50% - 17.5vmax);
     height: 3px;
     background-color: green;
   }
   to {
-    top: calc(50% + 14.6vmax);
+    top: calc(50% + 17.2vmax);
     height: 1px;
     background-color: greenyellow;
   }
 }
 @keyframes scan2 {
   from {
-    left: calc(50% - 15vmax);
+    left: calc(50% - 17.5vmax);
     width: 3px;
     background-color: green;
   }
   to {
-    left: calc(50% + 14.6vmax);
+    left: calc(50% + 17.2vmax);
     width: 1px;
     background-color: greenyellow;
   }
@@ -69,10 +69,10 @@ video {
   animation: scan1 infinite;
   animation-duration: 1s;
   position: fixed;
-  top: calc(50% + 15vmax);
-  left: calc(50% - 15vmax);
+  top: calc(50% + 17.5vmax);
+  left: calc(50% - 17.5vmax);
   visibility: hidden;
-  width: 30vmax;
+  width: 35vmax;
   height: 3px;
   background-color: green;
   z-index: 20;
@@ -81,10 +81,10 @@ video {
   animation: scan2 infinite;
   animation-duration: 1s;
   position: fixed;
-  top: calc(50% - 15vmax);
-  left: calc(50% + 15vmax);
+  top: calc(50% - 17.5vmax);
+  left: calc(50% + 17.5vmax);
   visibility: hidden;
-  height: 30vmax;
+  height: 35vmax;
   width: 3px;
   background-color: green;
   z-index: 20;
@@ -187,8 +187,8 @@ video {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 30vmax;
-  height: 30vmax;
+  width: 35vmax;
+  height: 35vmax;
   border: 4px dashed white;
   background-color: #eee;
   visibility: hidden;
@@ -199,10 +199,9 @@ video {
   display: flex;
   top: 80%;
   left: 20%;
-
   width: 60%;
   overflow: auto;
-  height: 30vmax;
+  height: 35vmax;
   border: 4px dashed blue;
   background-color: #eee;
   visibility: hidden;
