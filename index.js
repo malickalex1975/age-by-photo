@@ -1,5 +1,7 @@
 import { FaceDetection } from "./face-detection.js";
 import { string1, string2 } from "./strings.js";
+try{
+
 let screenWidth,
   screenHeight,
   koeff,
@@ -463,7 +465,7 @@ const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
 buttonBegin.addEventListener("click", () => {
- // navigator.vibrate(50);
+  //navigator.vibrate(50);
   init();
   setTimeout(() => hideStartView(), 1000);
 });
@@ -615,3 +617,4 @@ function whiteFrame() {
 function greenFrame() {
   frame.style.backgroundColor = "rgba(200, 255, 200, 0.3)";
 }
+}catch(e){alert(e)}

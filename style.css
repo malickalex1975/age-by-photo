@@ -169,7 +169,6 @@ video {
   box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
   color: red;
   font-size: 30px;
-  transition: 1s;
   text-align: center;
   padding: 10px;
 }
