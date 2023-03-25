@@ -132,6 +132,7 @@ video {
   font-size: 30px;
   cursor: pointer;
   z-index: 11;
+  padding-bottom: 10px;
 }
 
 .button-age:hover,

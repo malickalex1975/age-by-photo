@@ -463,8 +463,7 @@ const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
 buttonBegin.addEventListener("click", () => {
-    alert('hello')
-  navigator.vibrate(50);
+ // navigator.vibrate(50);
   init();
   setTimeout(() => hideStartView(), 1000);
 });
