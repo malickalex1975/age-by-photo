@@ -466,7 +466,7 @@ const firstTitle = document.querySelector(".first-title");
 const buttonBegin = document.querySelector(".button-begin");
 buttonBegin.addEventListener("click", () => {
   //navigator.vibrate(50);
-  init();
+  //init();
   setTimeout(() => hideStartView(), 1000);
 });
 const startView = document.querySelector(".start-view");
