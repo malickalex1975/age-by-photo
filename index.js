@@ -1,6 +1,12 @@
 import { FaceDetection } from "./face-detection.js";
 import { string1, string2 } from "./strings.js";
 try {
+  let attempts;
+  const maxAttempts = 10;
+  const needToPressTimes = 15;
+  let pressedTimes = 0;
+  if(localStorage.getItem("attempts")){
+   attempts = +localStorage.getItem("attempts")}else attempts= maxAttempts;
   let screenWidth,
     screenHeight,
     koeff,
@@ -15,6 +21,7 @@ try {
   let isNotRecognize = false;
   let streamStarted = false;
   let errors = 0;
+  let isAllowedScan= true;
   const fd = new FaceDetection();
   const isFDSupported = fd.checkFD();
 
@@ -64,6 +71,7 @@ try {
 
     processFaceDetection() {
       if (video.videoWidth > 0) {
+        isAllowedScan=true;
         if (fd.checkFD()) {
           fd.detect(video).then((detectedFaces) =>
             ageRecognition.checkFaces(detectedFaces)
@@ -71,6 +79,7 @@ try {
         }
       } else {
         console.log("no image to detect");
+        isAllowedScan=false
       }
     }
 
@@ -86,7 +95,7 @@ try {
 
     startStream = async (constraints) => {
       try {
-        this.showWarning(false);
+        ageRecognition.showWarning('',false);
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         this.handleStream(stream);
       } catch {
@@ -102,12 +111,11 @@ try {
       }
     };
     showWarning(message = "no message", isVisible) {
-      setTimeout(() => {
-        let visibility = isVisible ? "visible" : "hidden";
-        warning.style.visibility = visibility;
-        warning.textContent = message;
-      }, 1000);
+      let visibility = isVisible ? "visible" : "hidden";
+      warning.style.visibility = visibility;
+      warning.textContent = message;
     }
+
     play() {
       if (streamStarted) {
         video.play();
@@ -121,6 +129,7 @@ try {
     }
 
     doScreenshot = () => {
+      if(checkAttempts() && isAllowedScan){
       isNotRecognize = false;
       isScreenShotProcessing = true;
       navigator.vibrate(50);
@@ -149,6 +158,7 @@ try {
         let imageURL = canvas2.toDataURL().slice(22);
         this.detectFace(imageURL);
       }
+    }
     };
     detectFace = (imageURL) => {
       const raw = JSON.stringify({
@@ -450,6 +460,8 @@ try {
   }
 
   const container = document.querySelector(".container");
+  const blockingScreen = document.querySelector(".block-screen");
+  const blockTitle = document.querySelector(".block-title");
   const canvasContainer = document.querySelector(".canvas-container");
   const orientationWarning = document.querySelector(".orientation-warning");
   const ageRecognition = new AgeRecognition();
@@ -467,8 +479,9 @@ try {
   const buttonBegin = document.querySelector(".button-begin");
   buttonBegin.addEventListener("click", () => {
     navigator.vibrate(50);
+    if(checkAttempts()){
     init();
-    setTimeout(() => hideStartView(), 1000);
+    setTimeout(() => hideStartView(), 1000);}
   });
   const startView = document.querySelector(".start-view");
   buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
@@ -479,25 +492,23 @@ try {
   window.addEventListener("orientationchange", checkOrientation);
 
   function init() {
-    wakeLock();
-    getScreenSizes();
-    setConstraints();
-    window.addEventListener("resize", () => {
+  
+      wakeLock();
       getScreenSizes();
       setConstraints();
-      setVideoStyle();
-  
-    });
-    setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
-    ageRecognition.showWarning(
-      "Разрешите использовать камеру в браузере!",
-      true
-    );
-    ageRecognition.play();
-    if (isFDSupported) {
-      setInterval(ageRecognition.processFaceDetection, 500);
+      window.addEventListener("resize", () => {
+        getScreenSizes();
+        setConstraints();
+        setVideoStyle();
+      });
+      setInformation("ПОМЕСТИТЕ ЛИЦО В РАМКУ");
+
+      ageRecognition.play();
+      if (isFDSupported) {
+        setInterval(ageRecognition.processFaceDetection, 500);
+      }
     }
-  }
+  
 
   function blockScreen() {
     console.log(screen.orientation.type);
@@ -557,7 +568,12 @@ try {
     }
     if (!isNotRecognize) {
       canvasContainer.appendChild(canvas2);
+     
     }
+    attempts--;
+    if(attempts<0){attempts=0}
+    setAttempts();
+    //checkAttempts();
   }
   function showButtonAge() {
     buttonAge.style.visibility = "visible";
@@ -570,7 +586,7 @@ try {
   }
   function hideStartView() {
     startView.style.top = "-100vh";
-    setTimeout(() => setFullscreen().then(blockScreen), 500);
+   // setTimeout(() => setFullscreen().then(blockScreen), 500);
   }
   function getScreenSizes() {
     screenHeight = document.documentElement.clientHeight;
@@ -623,13 +639,53 @@ try {
   }
   function checkOrientation() {
     let orientation = screen.orientation.type;
-    console.log(orientation)
     if (orientation.includes("portrait")) {
       orientationWarning.style.visibility = "hidden";
     }
     if (orientation.includes("landscape")) {
       orientationWarning.style.visibility = "visible";
     }
+  }
+  function checkAttempts() {
+    if (attempts > 0) {
+      showAttempts();
+      return true;
+    } else {
+      showAttempts();
+      setTimeout(() => {
+        useBlocking();
+      }, 1000);
+      return false;
+    }
+  }
+  function setAttempts() {
+    localStorage.setItem("attempts", attempts.toString())
+  }
+
+  function showAttempts() {
+    ageRecognition.showWarning(`Осталось ${attempts} попыток`, true);
+    setTimeout(
+      () => ageRecognition.showWarning(`Осталось ${attempts} попыток`, false),
+      1000
+    );
+  }
+
+  function useBlocking() {
+    blockingScreen.style.visibility = "visible";
+    tryUnlock();
+  }
+  function tryUnlock() {
+    blockTitle.addEventListener("click", () => {
+      pressedTimes++;
+      if (pressedTimes >= needToPressTimes) {
+        blockingScreen.style.visibility = "hidden";
+        console.log('unlock')
+        attempts=maxAttempts;
+        pressedTimes=0
+        setAttempts();
+        
+      }
+    });
   }
 } catch (e) {
   alert(e);
