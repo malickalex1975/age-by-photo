@@ -465,7 +465,7 @@ const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
 firstTitle.addEventListener('click',()=>alert('title'))
 const buttonBegin = document.querySelector(".button-begin");
-firstTitle.addEventListener("click", () => {
+buttonBegin.addEventListener("click", () => {
   navigator.vibrate(50);
   init();
   alert('hello')

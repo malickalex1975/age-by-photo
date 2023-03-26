@@ -122,6 +122,9 @@ video {
   visibility: hidden;
 }
 .button-begin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 200px;
   height: 70px;
   border: 2px solid transparent;
