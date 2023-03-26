@@ -36,6 +36,26 @@
   align-items: center;
   justify-content: space-around;
 }
+.orientation-warning {
+    
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 30;
+  background-color: #dee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+warning-title{
+  text-align: center;
+  font-size: 30px;
+  color: red;
+}
 .background {
   position: fixed;
   top: 0;
