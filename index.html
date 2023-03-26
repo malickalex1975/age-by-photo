@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Age-by-photo</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="background"></div>
-    <video src=""></video>
-    <canvas></canvas>
-<div class="frame"></div>
-<div class="scan-line"></div>
-<button class="button-camera-mode"></button>
-<div class="warning"></div>
- <script src="index.js"></script>   
-</body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="start-view">
+      <div class="first-title"></div>
+      <div class="button-begin">НАЧАТЬ</div>
+    </div>
+    <div class="orientation-warning">
+      <h1 class="warning-title">ПОВЕРНИТЕ ВАШ ГАДЖЕТ</h1>
+    </div>
+    <div class="block-screen">
+      <h1 class="block-title">ВЫ ИСПОЛЬЗОВАЛИ СВОИ ПОПЫТКИ. ДЛЯ РАЗБЛОКИРОВКИ ОБРАТИТЕСЬ К РАЗРАБОТЧИКУ!</h1>
+    </div>
+    <div class="container">
+      <div class="background"></div>
+      <video src=""></video>
+      <div class="frame"></div>
+      <canvas class="canvas1"></canvas>
+
+      <div class="scan-line1"></div>
+      <div class="scan-line2"></div>
+      <div class="canvas-container"></div>
+      <button class="button-age"></button>
+      <div class="information"></div>
+      <div class="warning"></div>
+    </div>
+    <script src="index.js" type="module"></script>
+  </body>
 </html>
