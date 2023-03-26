@@ -463,10 +463,12 @@ canvas = document.querySelector(".canvas1");
 ctx = canvas.getContext("2d", { willReadFrequently: true });
 const buttonAge = document.querySelector(".button-age");
 const firstTitle = document.querySelector(".first-title");
+firstTitle.addEventListener('click',()=>alert('title'))
 const buttonBegin = document.querySelector(".button-begin");
 buttonBegin.addEventListener("click", () => {
   //navigator.vibrate(50);
   //init();
+  alert('hello')
   setTimeout(() => hideStartView(), 1000);
 });
 const startView = document.querySelector(".start-view");
