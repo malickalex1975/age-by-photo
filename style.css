@@ -69,6 +69,13 @@
   text-align: center;
   font-size: 30px;
   color: red;
+  transition: 200ms;
+}
+.block-title:active{
+  text-shadow: 2px 2px 5px white;
+  font-size: 32px;
+
+
 }
 .background {
   position: fixed;
