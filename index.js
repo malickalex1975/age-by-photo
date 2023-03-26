@@ -469,7 +469,7 @@ buttonBegin.addEventListener("click", () => {
   //navigator.vibrate(50);
   //init();
   alert('hello')
-  setTimeout(() => hideStartView(), 1000);
+ // setTimeout(() => hideStartView(), 1000);
 });
 const startView = document.querySelector(".start-view");
 buttonAge.textContent = "УЗНАЙ СВОЙ ВОЗРАСТ";
