@@ -187,7 +187,7 @@ try {
       };
 
       fetch(
-        `https://api.clarifai.com/v2/models/face-detection-0200/versions/174702155a6043c9932b045e8e00e6e2/outputs`,
+        `https://api.clarifai.com/v2/models/face-detection/outputs`,
         requestOptions
       )
         .then((response) => response.json())
